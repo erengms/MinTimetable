@@ -13,6 +13,7 @@ import com.islandparadise14.mintable.model.ScheduleEntity
 import com.islandparadise14.mintable.tableinterface.OnScheduleClickListener
 import com.islandparadise14.mintable.tableinterface.OnScheduleLongClickListener
 import com.islandparadise14.mintable.tableinterface.OnTimeCellClickListener
+import com.islandparadise14.mintable.tableinterface.OnDayHeaderClickListener
 import com.islandparadise14.mintable.utils.dpToPx
 import com.islandparadise14.mintable.utils.getHour
 import kotlinx.android.synthetic.main.mintable.view.*
@@ -54,6 +55,8 @@ open class BaseTimeTable : LinearLayout {
     protected var scheduleClickListener: OnScheduleClickListener? = null
     protected var timeCellClickListener: OnTimeCellClickListener? = null
     protected var scheduleLongClickListener: OnScheduleLongClickListener? = null
+    protected var dayHeaderClickListener: OnDayHeaderClickListener? = null
+
 
     protected var border: Boolean = false
     protected var xEndLine: Boolean = false
@@ -78,6 +81,9 @@ open class BaseTimeTable : LinearLayout {
         initView(context, attrs)
     }
 
+    fun setOnDayHeaderClickListener(listener: OnDayHeaderClickListener) {
+        this.dayHeaderClickListener = listener
+    }
 
 
     @SuppressLint("Recycle", "CustomViewStyleable")
