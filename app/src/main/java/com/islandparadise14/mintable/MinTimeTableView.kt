@@ -108,8 +108,8 @@ class MinTimeTableView : BaseTimeTable {
             )
         )
 
-        for(i in (super.dayList).indices) {
-            if (super.xEndLine) topMenu.addView(
+        for (i in (super.dayList).indices) {
+            val headerView = if (super.xEndLine) {
                 XxisView(
                     super.tableContext,
                     super.topMenuHeightPx.roundToInt(),
@@ -119,9 +119,8 @@ class MinTimeTableView : BaseTimeTable {
                     super.menuTextColor,
                     super.menuTextSize
                 )
-                )
-            else {
-                if (i == (super.dayList).size - 1) topMenu . addView (
+            } else {
+                if (i == (super.dayList).size - 1) {
                     XxisEndView(
                         super.tableContext,
                         super.topMenuHeightPx.roundToInt(),
@@ -131,8 +130,7 @@ class MinTimeTableView : BaseTimeTable {
                         super.menuTextColor,
                         dpToPx(tableContext, super.menuTextSize)
                     )
-                        )
-                else topMenu.addView(
+                } else {
                     XxisView(
                         super.tableContext,
                         super.topMenuHeightPx.roundToInt(),
@@ -142,11 +140,23 @@ class MinTimeTableView : BaseTimeTable {
                         super.menuTextColor,
                         dpToPx(tableContext, super.menuTextSize)
                     )
-                )
+                }
             }
-        }
+        
+            // ✅ Listener ekleniyor
+            headerView.setOnClickListener {
+                dayHeaderClickListener?.onDayHeaderClicked(i)
+            }
+        
+            topMenu.addView(headerView)
+        } // ← for burada kapanıyor
 
+        // ✅ Döngü bittikten sonra tabloyu çiziyoruz
         super.recycleTimeCell()
+
+        
+        
+
     }
 
     fun updateSchedules(schedules: ArrayList<ScheduleEntity>) {
