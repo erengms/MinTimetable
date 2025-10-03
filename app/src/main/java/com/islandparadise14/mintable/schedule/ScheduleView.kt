@@ -14,6 +14,7 @@ import com.islandparadise14.mintable.tableinterface.OnScheduleLongClickListener
 import com.islandparadise14.mintable.utils.dpToPx
 import com.islandparadise14.mintable.utils.getTotalMinute
 import kotlinx.android.synthetic.main.item_schedule.view.*
+import kotlin.math.max
 
 @SuppressLint("ViewConstructor")
 class ScheduleView(
@@ -55,20 +56,18 @@ class ScheduleView(
 
         val duration = getTotalMinute(entity.endTime) - getTotalMinute(entity.startTime)
 
-        // ✅ 1 dakikanın px karşılığı (cellHeight / 60)
+        // Dakika başına piksel yüksekliği
         val perMinuteHeight = height.toDouble() / 60.0
-        var calcHeight = (duration * perMinuteHeight).toInt()
+        val realHeight = duration * perMinuteHeight
 
-        // ✅ Minimum 2dp garanti
-        val minHeightPx = dpToPx(context, 2f).toInt()
-        if (calcHeight < minHeightPx) {
-            calcHeight = minHeightPx
-        }
+        // ✅ Orantılı büyüsün ama en az 2dp olsun
+        val calcHeight = max(realHeight.toInt(), dpToPx(context, 2f).toInt())
 
         val layoutSetting = LayoutParams(width, calcHeight)
 
         // Başlangıç konumu
-        layoutSetting.topMargin = (((height * getTotalMinute(entity.startTime)).toDouble() / 60) - (height * tableStartTime)).toInt()
+        layoutSetting.topMargin =
+            (((height * getTotalMinute(entity.startTime)).toDouble() / 60) - (height * tableStartTime)).toInt()
         layoutSetting.leftMargin = width * entity.scheduleDay
 
         tableItem.layoutParams = layoutSetting
@@ -101,13 +100,19 @@ class ScheduleView(
                 name.gravity = Gravity.RIGHT
                 room.gravity = Gravity.RIGHT
 
-                border.cornerRadii = floatArrayOf(cornerRadius, cornerRadius, 0f, 0f, cornerRadius, cornerRadius, 0f, 0f)
+                border.cornerRadii = floatArrayOf(
+                    cornerRadius, cornerRadius, 0f, 0f,
+                    cornerRadius, cornerRadius, 0f, 0f
+                )
             }
             RIGHT -> {
                 layoutText.rightMargin = (width.toDouble() * 0.15).toInt()
                 name.layoutParams = layoutText
 
-                border.cornerRadii = floatArrayOf(0f, 0f, cornerRadius, cornerRadius, 0f, 0f, cornerRadius, cornerRadius)
+                border.cornerRadii = floatArrayOf(
+                    0f, 0f, cornerRadius, cornerRadius,
+                    0f, 0f, cornerRadius, cornerRadius
+                )
             }
             ALL -> {
                 border.cornerRadius = roundRadius
