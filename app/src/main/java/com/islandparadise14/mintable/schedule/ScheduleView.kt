@@ -7,7 +7,6 @@ import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import com.islandparadise14.mintable.BaseTimeTable
 import com.islandparadise14.mintable.R
 import com.islandparadise14.mintable.model.ScheduleEntity
 import com.islandparadise14.mintable.tableinterface.OnScheduleClickListener
@@ -17,14 +16,15 @@ import com.islandparadise14.mintable.utils.getTotalMinute
 import kotlinx.android.synthetic.main.item_schedule.view.*
 
 @SuppressLint("ViewConstructor")
-class ScheduleView(context: Context,
-                   entity: ScheduleEntity,
-                   height: Int,
-                   width: Int,
-                   scheduleClickListener: OnScheduleClickListener?,
-                   scheduleLongClickListener: OnScheduleLongClickListener?,
-                   tableStartTime: Int,
-                   radiusStyle: Int
+class ScheduleView(
+    context: Context,
+    entity: ScheduleEntity,
+    height: Int,
+    width: Int,
+    scheduleClickListener: OnScheduleClickListener?,
+    scheduleLongClickListener: OnScheduleLongClickListener?,
+    tableStartTime: Int,
+    radiusStyle: Int
 ) : LinearLayout(context) {
     init {
         setting(
@@ -40,27 +40,32 @@ class ScheduleView(context: Context,
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun setting(context: Context,
-                        entity: ScheduleEntity,
-                        height: Int,
-                        width: Int,
-                        scheduleClickListener: OnScheduleClickListener?,
-                        scheduleLongClickListener: OnScheduleLongClickListener?,
-                        tableStartTime: Int,
-                        radiusStyle: Int
+    private fun setting(
+        context: Context,
+        entity: ScheduleEntity,
+        height: Int,
+        width: Int,
+        scheduleClickListener: OnScheduleClickListener?,
+        scheduleLongClickListener: OnScheduleLongClickListener?,
+        tableStartTime: Int,
+        radiusStyle: Int
     ) {
-
         val inflater = LayoutInflater.from(context)
         inflater.inflate(R.layout.item_schedule, this, true)
 
-        val duration = getTotalMinute(entity.endTime) - getTotalMinute(
-            entity.startTime
-        )
+        val duration = getTotalMinute(entity.endTime) - getTotalMinute(entity.startTime)
 
-        val layoutSetting = LayoutParams(width, ((height * duration).toDouble() / 60).toInt())
-        layoutSetting.topMargin = (((height * getTotalMinute(
-            entity.startTime
-        )).toDouble() / 60) - (height * tableStartTime)).toInt()
+        // Hesaplanan yükseklik
+        var calcHeight = ((height * duration).toDouble() / 60).toInt()
+
+        // ✅ Minimum 2dp görünürlük garantisi
+        val minHeightPx = dpToPx(context, 2f).toInt()
+        if (calcHeight < minHeightPx) {
+            calcHeight = minHeightPx
+        }
+
+        val layoutSetting = LayoutParams(width, calcHeight)
+        layoutSetting.topMargin = (((height * getTotalMinute(entity.startTime)).toDouble() / 60) - (height * tableStartTime)).toInt()
         layoutSetting.leftMargin = width * entity.scheduleDay
 
         tableItem.layoutParams = layoutSetting
@@ -75,13 +80,10 @@ class ScheduleView(context: Context,
             return@setOnLongClickListener true
         }
 
-
         val layoutText = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
 
-        val cornerRadius =
-            dpToPx(context, RADIUS.toFloat())
-        val roundRadius =
-            dpToPx(context, ROUND.toFloat())
+        val cornerRadius = dpToPx(context, RADIUS.toFloat())
+        val roundRadius = dpToPx(context, ROUND.toFloat())
 
         val border = GradientDrawable()
         border.setColor(Color.parseColor(entity.backgroundColor))
