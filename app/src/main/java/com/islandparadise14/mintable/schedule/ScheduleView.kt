@@ -55,16 +55,19 @@ class ScheduleView(
 
         val duration = getTotalMinute(entity.endTime) - getTotalMinute(entity.startTime)
 
-        // Hesaplanan yükseklik
-        var calcHeight = ((height * duration).toDouble() / 60).toInt()
+        // ✅ 1 dakikanın px karşılığı (cellHeight / 60)
+        val perMinuteHeight = height.toDouble() / 60.0
+        var calcHeight = (duration * perMinuteHeight).toInt()
 
-        // ✅ Minimum 2dp görünürlük garantisi
+        // ✅ Minimum 2dp garanti
         val minHeightPx = dpToPx(context, 2f).toInt()
         if (calcHeight < minHeightPx) {
             calcHeight = minHeightPx
         }
 
         val layoutSetting = LayoutParams(width, calcHeight)
+
+        // Başlangıç konumu
         layoutSetting.topMargin = (((height * getTotalMinute(entity.startTime)).toDouble() / 60) - (height * tableStartTime)).toInt()
         layoutSetting.leftMargin = width * entity.scheduleDay
 
