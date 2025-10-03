@@ -14,7 +14,6 @@ import com.islandparadise14.mintable.tableinterface.OnScheduleLongClickListener
 import com.islandparadise14.mintable.utils.dpToPx
 import com.islandparadise14.mintable.utils.getTotalMinute
 import kotlinx.android.synthetic.main.item_schedule.view.*
-import kotlin.math.max
 
 @SuppressLint("ViewConstructor")
 class ScheduleView(
@@ -51,27 +50,36 @@ class ScheduleView(
         tableStartTime: Int,
         radiusStyle: Int
     ) {
+
         val inflater = LayoutInflater.from(context)
         inflater.inflate(R.layout.item_schedule, this, true)
 
+        // Süre hesapla (dakika cinsinden)
         val duration = getTotalMinute(entity.endTime) - getTotalMinute(entity.startTime)
 
-        // Dakika başına piksel yüksekliği
-        val perMinuteHeight = height.toDouble() / 60.0
-        val realHeight = duration * perMinuteHeight
+        // Yükseklik hesaplama
+        var calculatedHeight = ((height * duration).toDouble() / 60).toInt()
 
-        // ✅ Orantılı büyüsün ama en az 2dp olsun
-        val calcHeight = max(realHeight.toInt(), dpToPx(context, 2f).toInt())
+        // 🔒 Minimum 2dp, ama cellHeight büyüdükçe orantılı şekilde artsın
+        val minHeight = dpToPx(context, 2f).toInt()
+        if (calculatedHeight < minHeight) {
+            // 1 dakikanın yüksekliği
+            val oneMinuteHeight = (height.toFloat() / 60f).toInt()
+            calculatedHeight = maxOf(minHeight, oneMinuteHeight)
+        }
 
-        val layoutSetting = LayoutParams(width, calcHeight)
+        val layoutSetting = LayoutParams(width, calculatedHeight)
 
-        // Başlangıç konumu
+        // Başlangıç saatine göre üst margin
         layoutSetting.topMargin =
             (((height * getTotalMinute(entity.startTime)).toDouble() / 60) - (height * tableStartTime)).toInt()
+
+        // Gün sütunu
         layoutSetting.leftMargin = width * entity.scheduleDay
 
         tableItem.layoutParams = layoutSetting
 
+        // Click listener
         tableItem.setOnClickListener {
             scheduleClickListener?.scheduleClicked(entity)
             entity.mOnClickListener?.onClick(tableItem)
@@ -82,6 +90,7 @@ class ScheduleView(
             return@setOnLongClickListener true
         }
 
+        // Text layout ayarları
         val layoutText = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
 
         val cornerRadius = dpToPx(context, RADIUS.toFloat())
@@ -101,8 +110,10 @@ class ScheduleView(
                 room.gravity = Gravity.RIGHT
 
                 border.cornerRadii = floatArrayOf(
-                    cornerRadius, cornerRadius, 0f, 0f,
-                    cornerRadius, cornerRadius, 0f, 0f
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    0f, 0f
                 )
             }
             RIGHT -> {
@@ -110,8 +121,10 @@ class ScheduleView(
                 name.layoutParams = layoutText
 
                 border.cornerRadii = floatArrayOf(
-                    0f, 0f, cornerRadius, cornerRadius,
-                    0f, 0f, cornerRadius, cornerRadius
+                    0f, 0f,
+                    cornerRadius, cornerRadius,
+                    0f, 0f,
+                    cornerRadius, cornerRadius
                 )
             }
             ALL -> {
@@ -121,6 +134,7 @@ class ScheduleView(
 
         tableItem.background = border
 
+        // Text renkleri ve içerikleri
         name.text = entity.scheduleName
         room.text = entity.roomInfo
 
